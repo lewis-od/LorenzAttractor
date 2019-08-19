@@ -10,9 +10,8 @@
 #import "LorenzSolver.h"
 
 @interface LorenzSaverView : ScreenSaverView {
-    // Points of trajectory in Lorenz Attractor coordinate system
-    NSArray *xVals;
-    NSArray *zVals;
+    // Points of trajectory in screen coordinate system
+    NSMutableArray *points;
     
     // Colours to use for drawing
     NSMutableArray *colours;

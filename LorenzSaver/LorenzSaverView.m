@@ -14,7 +14,13 @@
 {    
     self = [super initWithFrame:frame isPreview:isPreview];
     if (self) {
+        // Animate at 60 FPS
         [self setAnimationTimeInterval:1/60.0];
+        
+        // Get bounds of screen
+        NSRect screenSize = [self bounds];
+        screenMaxX = NSMaxX(screenSize);
+        screenMaxY = NSMaxY(screenSize);
         
         // Plot curve from t=0 to t=40, solve using timestep of 0.005
         LorenzSolver *solver = [[LorenzSolver alloc] initWithTMin:0.0 tMax:40 dt:0.005];
@@ -23,8 +29,8 @@
         [solver solve];
         
         // Plot x-z plane
-        xVals = solver.x;
-        zVals = solver.z;
+        NSArray *xVals = solver.x;
+        NSArray *zVals = solver.z;
         
         // Find min and max x,z values
         lorenzMinX = [[xVals valueForKeyPath:@"@min.floatValue"] floatValue];
@@ -32,7 +38,18 @@
         lorenzMaxX = [[xVals valueForKeyPath:@"@max.floatValue"] floatValue];
         lorenzMaxZ = [[zVals valueForKeyPath:@"@max.floatValue"] floatValue];
         
-        int nColours = 1000;
+        // Convert points to screen coordinates
+        points = [NSMutableArray arrayWithCapacity:xVals.count];
+        for (int i = 0; i < xVals.count; i++) {
+            NSPoint point = NSMakePoint([xVals[i] floatValue], [zVals[i] floatValue]);
+            point = [self convertToScreenSpace:point];
+            // Must store points as NSValues since NSPoint is not an NSObject
+            NSValue *pointVal = [NSValue valueWithPoint:point];
+            [points addObject:pointVal];
+        }
+        
+        // Line segments are drawn using colours from this array, in order
+        int nColours = 1000; // Larger number means smoother gradient
         colours = [NSMutableArray arrayWithCapacity:nColours];
         for (float hue = 0.0; hue <= 1.0; hue += 1.0/nColours) {
             NSColor *colour = [NSColor colorWithHue:hue saturation:1.0 brightness:1.0 alpha:1.0];
@@ -48,11 +65,6 @@
     
     // Number of points drawn
     self->n = 1;
-    
-    // Get bounds of screen
-    NSRect screenSize = [self bounds];
-    screenMaxX = NSMaxX(screenSize);
-    screenMaxY = NSMaxY(screenSize);
 }
 
 - (void)stopAnimation
@@ -65,12 +77,8 @@
     [super drawRect:rect];
     
     for (int k = 1; k < self->n; k++) {
-        // Scale points to screen
-        NSPoint prevPoint = NSMakePoint([xVals[k - 1] floatValue], [zVals[k - 1] floatValue]);
-        prevPoint = [self convertToScreenSpace:prevPoint];
-        
-        NSPoint nextPoint = NSMakePoint([xVals[k] floatValue], [zVals[k] floatValue]);
-        nextPoint = [self convertToScreenSpace:nextPoint];
+        NSPoint prevPoint = [points[k - 1] pointValue];
+        NSPoint nextPoint = [points[k] pointValue];
         
         NSColor *colour = colours[k % colours.count];
         [colour set];
@@ -88,7 +96,7 @@
 
 - (void)animateOneFrame
 {
-    n = (n + 1) % [xVals count];
+    n = (n + 1) % [points count];
     [self setNeedsDisplay:YES];
 }
 
