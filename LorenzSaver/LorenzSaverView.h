@@ -11,6 +11,7 @@
 
 @interface LorenzSaverView : ScreenSaverView {
     LorenzSolver *solver;
+    int n; // Number of points drawn so far
 }
 
 @end

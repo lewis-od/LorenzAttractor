@@ -14,12 +14,12 @@
 {    
     self = [super initWithFrame:frame isPreview:isPreview];
     if (self) {
-        [self setAnimationTimeInterval:1/30.0];
+        [self setAnimationTimeInterval:1/60.0];
         
         // Plot curve from t=0 to t=40, solve using timestep of 0.005
         solver = [[LorenzSolver alloc] initWithTMin:0.0 tMax:40 dt:0.005];
         
-        // TODO: Perform on different thread
+        // TODO: Perform on different thread?
         [solver solve];
     }
     return self;
@@ -28,6 +28,9 @@
 - (void)startAnimation
 {
     [super startAnimation];
+    
+    // Number of points drawn
+    self->n = 1;
 }
 
 - (void)stopAnimation
@@ -39,6 +42,7 @@
 {
     [super drawRect:rect];
     
+    // Get bounds of screen
     NSRect screenSize = [self bounds];
     float screenMaxX = NSMaxX(screenSize);
     float screenMaxY = NSMaxY(screenSize);
@@ -59,13 +63,13 @@
     [path setLineWidth:1];
     [path setLineJoinStyle:NSLineJoinStyleRound];
     
-    for (int n = 0; n < xVals.count; n++) {
+    for (int k = 0; k < self->n; k++) {
         // Scale points to screen
-        float pointX = (([xVals[n] floatValue] - lorenzMinX) / (lorenzMaxX - lorenzMinX)) * screenMaxX;
-        float pointY = (([zVals[n] floatValue] - lorenzMinZ) / (lorenzMaxZ - lorenzMinZ)) * screenMaxY;
+        float pointX = (([xVals[k] floatValue] - lorenzMinX) / (lorenzMaxX - lorenzMinX)) * screenMaxX;
+        float pointY = (([zVals[k] floatValue] - lorenzMinZ) / (lorenzMaxZ - lorenzMinZ)) * screenMaxY;
         NSPoint point = NSMakePoint(pointX, pointY);
         
-        if (n == 0) {
+        if (k == 0) {
             // First point - move cursor here
             [path moveToPoint:point];
         } else {
@@ -102,8 +106,8 @@
 
 - (void)animateOneFrame
 {
-    // TODO: Animate path
-    return;
+    n = (n + 1) % [solver.x count];
+    [self setNeedsDisplay:YES];
 }
 
 - (BOOL)hasConfigureSheet
