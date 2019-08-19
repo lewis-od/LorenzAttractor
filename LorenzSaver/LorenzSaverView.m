@@ -31,6 +31,13 @@
         lorenzMinZ = [[zVals valueForKeyPath:@"@min.floatValue"] floatValue];
         lorenzMaxX = [[xVals valueForKeyPath:@"@max.floatValue"] floatValue];
         lorenzMaxZ = [[zVals valueForKeyPath:@"@max.floatValue"] floatValue];
+        
+        int nColours = 1000;
+        colours = [NSMutableArray arrayWithCapacity:nColours];
+        for (float hue = 0.0; hue <= 1.0; hue += 1.0/nColours) {
+            NSColor *colour = [NSColor colorWithHue:hue saturation:1.0 brightness:1.0 alpha:1.0];
+            [colours addObject:colour];
+        }
     }
     return self;
 }
@@ -57,29 +64,26 @@
 {
     [super drawRect:rect];
     
-    // Draw in white
-    [[NSColor whiteColor] set];
-    
-    NSBezierPath *path = [NSBezierPath bezierPath];
-    [path setLineWidth:1];
-    [path setLineJoinStyle:NSLineJoinStyleRound];
-    
-    for (int k = 0; k < self->n; k++) {
+    for (int k = 1; k < self->n; k++) {
         // Scale points to screen
-        NSPoint point = NSMakePoint([xVals[k] floatValue], [zVals[k] floatValue]);
-        point = [self convertToScreenSpace:point];
+        NSPoint prevPoint = NSMakePoint([xVals[k - 1] floatValue], [zVals[k - 1] floatValue]);
+        prevPoint = [self convertToScreenSpace:prevPoint];
         
-        if (k == 0) {
-            // First point - move cursor here
-            [path moveToPoint:point];
-        } else {
-            // Draw line from previous point to this point
-            [path lineToPoint:point];
-        }
+        NSPoint nextPoint = NSMakePoint([xVals[k] floatValue], [zVals[k] floatValue]);
+        nextPoint = [self convertToScreenSpace:nextPoint];
+        
+        NSColor *colour = colours[k % colours.count];
+        [colour set];
+        
+        NSBezierPath *path = [NSBezierPath bezierPath];
+        [path setLineWidth:1];
+        [path setLineJoinStyle:NSLineJoinStyleRound];
+        
+        [path moveToPoint:prevPoint];
+        [path lineToPoint:nextPoint];
+        
+        [path stroke];
     }
-    
-    // Draw the path
-    [path stroke];
 }
 
 - (void)animateOneFrame

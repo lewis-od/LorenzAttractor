@@ -14,6 +14,9 @@
     NSArray *xVals;
     NSArray *zVals;
     
+    // Colours to use for drawing
+    NSMutableArray *colours;
+    
     // Screen bounds
     float screenMaxX;
     float screenMaxY;
