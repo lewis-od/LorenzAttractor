@@ -82,28 +82,6 @@
     [path stroke];
 }
 
-
-// NOTE: Draw text functions left here for debugging purposes
-- (void)drawText:(NSString *)textString atPoint:(NSPoint)centre withSize:(int)fontSize
-{
-    NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
-                                [NSFont fontWithName:@"Helvetica" size:fontSize],
-                                NSFontAttributeName, [NSColor whiteColor],
-                                NSForegroundColorAttributeName, nil];
-    
-    NSAttributedString *label = [[NSAttributedString alloc]
-                                 initWithString:textString
-                                 attributes:attributes];
-    
-    float textX = centre.x - label.size.width/2;
-    float textY = centre.y - label.size.height/2;
-    [label drawAtPoint:NSMakePoint(textX, textY)];
-}
-
-- (void)drawText:(NSString *)textString atPoint:(NSPoint)centre {
-    [self drawText:textString atPoint:centre withSize:20];
-}
-
 - (void)animateOneFrame
 {
     n = (n + 1) % [solver.x count];
