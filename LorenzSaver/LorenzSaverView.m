@@ -17,10 +17,20 @@
         [self setAnimationTimeInterval:1/60.0];
         
         // Plot curve from t=0 to t=40, solve using timestep of 0.005
-        solver = [[LorenzSolver alloc] initWithTMin:0.0 tMax:40 dt:0.005];
+        LorenzSolver *solver = [[LorenzSolver alloc] initWithTMin:0.0 tMax:40 dt:0.005];
         
         // TODO: Perform on different thread?
         [solver solve];
+        
+        // Plot x-z plane
+        xVals = solver.x;
+        zVals = solver.z;
+        
+        // Find min and max x,z values
+        lorenzMinX = [[xVals valueForKeyPath:@"@min.floatValue"] floatValue];
+        lorenzMinZ = [[zVals valueForKeyPath:@"@min.floatValue"] floatValue];
+        lorenzMaxX = [[xVals valueForKeyPath:@"@max.floatValue"] floatValue];
+        lorenzMaxZ = [[zVals valueForKeyPath:@"@max.floatValue"] floatValue];
     }
     return self;
 }
@@ -31,6 +41,11 @@
     
     // Number of points drawn
     self->n = 1;
+    
+    // Get bounds of screen
+    NSRect screenSize = [self bounds];
+    screenMaxX = NSMaxX(screenSize);
+    screenMaxY = NSMaxY(screenSize);
 }
 
 - (void)stopAnimation
@@ -42,20 +57,6 @@
 {
     [super drawRect:rect];
     
-    // Get bounds of screen
-    NSRect screenSize = [self bounds];
-    float screenMaxX = NSMaxX(screenSize);
-    float screenMaxY = NSMaxY(screenSize);
-    
-    // Plot x-z plane
-    NSArray *xVals = solver.x;
-    NSArray *zVals = solver.z;
-    // Find min and max x,z values
-    float lorenzMinX = [[xVals valueForKeyPath:@"@min.floatValue"] floatValue];
-    float lorenzMinZ = [[zVals valueForKeyPath:@"@min.floatValue"] floatValue];
-    float lorenzMaxX = [[xVals valueForKeyPath:@"@max.floatValue"] floatValue];
-    float lorenzMaxZ = [[zVals valueForKeyPath:@"@max.floatValue"] floatValue];
-    
     // Draw in white
     [[NSColor whiteColor] set];
     
@@ -65,9 +66,8 @@
     
     for (int k = 0; k < self->n; k++) {
         // Scale points to screen
-        float pointX = (([xVals[k] floatValue] - lorenzMinX) / (lorenzMaxX - lorenzMinX)) * screenMaxX;
-        float pointY = (([zVals[k] floatValue] - lorenzMinZ) / (lorenzMaxZ - lorenzMinZ)) * screenMaxY;
-        NSPoint point = NSMakePoint(pointX, pointY);
+        NSPoint point = NSMakePoint([xVals[k] floatValue], [zVals[k] floatValue]);
+        point = [self convertToScreenSpace:point];
         
         if (k == 0) {
             // First point - move cursor here
@@ -84,7 +84,7 @@
 
 - (void)animateOneFrame
 {
-    n = (n + 1) % [solver.x count];
+    n = (n + 1) % [xVals count];
     [self setNeedsDisplay:YES];
 }
 
@@ -96,6 +96,13 @@
 - (NSWindow*)configureSheet
 {
     return nil;
+}
+
+- (NSPoint)convertToScreenSpace:(NSPoint)lorenzSpace {
+    float screenX = ((lorenzSpace.x - lorenzMinX) / (lorenzMaxX - lorenzMinX)) * screenMaxX;
+    float screenY = ((lorenzSpace.y - lorenzMinZ) / (lorenzMaxZ - lorenzMinZ)) * screenMaxY;
+    
+    return NSMakePoint(screenX, screenY);
 }
 
 @end

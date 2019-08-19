@@ -10,7 +10,19 @@
 #import "LorenzSolver.h"
 
 @interface LorenzSaverView : ScreenSaverView {
-    LorenzSolver *solver;
+    // Points of trajectory in Lorenz Attractor coordinate system
+    NSArray *xVals;
+    NSArray *zVals;
+    
+    // Screen bounds
+    float screenMaxX;
+    float screenMaxY;
+    // Lorenz coord system max/min values
+    float lorenzMinX;
+    float lorenzMaxX;
+    float lorenzMinZ;
+    float lorenzMaxZ;
+    
     int n; // Number of points drawn so far
 }
 
