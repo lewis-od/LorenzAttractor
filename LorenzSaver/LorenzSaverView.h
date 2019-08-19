@@ -25,7 +25,16 @@
     float lorenzMinZ;
     float lorenzMaxZ;
     
+    // Whether or not to draw colours
+    bool shouldColour;
+    
     int n; // Number of points drawn so far
+    
+    IBOutlet NSPanel *configSheet;
+    IBOutlet NSButton *shouldColourCheckbox;
 }
+
+- (IBAction)sheetCancelAction:(id)sender;
+- (IBAction)sheetOkAction:(id)sender;
 
 @end

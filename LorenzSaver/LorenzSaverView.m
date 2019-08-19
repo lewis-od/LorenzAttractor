@@ -48,13 +48,11 @@
             [points addObject:pointVal];
         }
         
-        // Line segments are drawn using colours from this array, in order
-        int nColours = 1000; // Larger number means smoother gradient
-        colours = [NSMutableArray arrayWithCapacity:nColours];
-        for (float hue = 0.0; hue <= 1.0; hue += 1.0/nColours) {
-            NSColor *colour = [NSColor colorWithHue:hue saturation:1.0 brightness:1.0 alpha:1.0];
-            [colours addObject:colour];
-        }
+        ScreenSaverDefaults *settings = [ScreenSaverDefaults defaultsForModuleWithName:@"LorenzSaver"];
+        [settings registerDefaults:@{ @"shouldColour": @YES }];
+        shouldColour = [settings boolForKey:@"shouldColour"];
+        
+        [self setupColours];
     }
     return self;
 }
@@ -102,12 +100,37 @@
 
 - (BOOL)hasConfigureSheet
 {
-    return NO;
+    return YES;
 }
 
-- (NSWindow*)configureSheet
+- (NSWindow *)configureSheet
 {
-    return nil;
+    if (configSheet == nil) {
+        if ([NSBundle loadNibNamed:@"LorenzSaverSheet" owner:self] == NO) {
+            NSLog(@"Error loading config sheet");
+            NSBeep();
+        }
+    }
+    
+    ScreenSaverDefaults *settings = [ScreenSaverDefaults defaultsForModuleWithName:@"LorenzSaver"];
+    [shouldColourCheckbox setState:[settings boolForKey:@"shouldColour"]];
+    
+    return (NSWindow *)configSheet;
+}
+
+- (IBAction)sheetOkAction:(id)sender {
+    shouldColour = [shouldColourCheckbox state];
+    ScreenSaverDefaults *settings = [ScreenSaverDefaults defaultsForModuleWithName:@"LorenzSaver"];
+    [settings setBool:shouldColour forKey:@"shouldColour"];
+    [settings synchronize];
+    
+    [self setupColours];
+    
+    [[NSApplication sharedApplication] endSheet:configSheet];
+}
+
+- (IBAction)sheetCancelAction:(id)sender {
+    [[NSApplication sharedApplication] endSheet:configSheet];
 }
 
 - (NSPoint)convertToScreenSpace:(NSPoint)lorenzSpace {
@@ -115,6 +138,20 @@
     float screenY = ((lorenzSpace.y - lorenzMinZ) / (lorenzMaxZ - lorenzMinZ)) * screenMaxY;
     
     return NSMakePoint(screenX, screenY);
+}
+
+- (void)setupColours {
+    if (shouldColour) {
+        // Line segments are drawn using colours from this array, in order
+        int nColours = 1000; // Larger number means smoother gradient
+        colours = [NSMutableArray arrayWithCapacity:nColours];
+        for (float hue = 0.0; hue <= 1.0; hue += 1.0/nColours) {
+            NSColor *colour = [NSColor colorWithHue:hue saturation:1.0 brightness:1.0 alpha:1.0];
+            [colours addObject:colour];
+        }
+    } else {
+        colours = [NSMutableArray arrayWithObject:[NSColor whiteColor]];
+    }
 }
 
 @end
