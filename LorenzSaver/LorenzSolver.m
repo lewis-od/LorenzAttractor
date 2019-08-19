@@ -26,11 +26,11 @@ float fz(float xn, float yn, float zn, LorenzSolver *ctx) {
 - (instancetype)initWithTMin:(float)tMin tMax:(float)tMax dt:(float)dt {
     self = [self init];
     
-    self.sigma = 10.0;
     self.beta = 8.0 / 3.0;
     // Rho is random float between 24 and 34
     int upperBound = 232783623;
     self.rho = 24.0 + (arc4random_uniform(upperBound) / (float)upperBound) * 10.0;
+    self.sigma = 10.0 + (arc4random_uniform(upperBound) / (float)upperBound) * 5.0;
     
     self->N = (tMax - tMin) / dt; // Number of steps
     self->dt = dt;
