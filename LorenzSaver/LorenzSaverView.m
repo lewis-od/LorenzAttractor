@@ -150,7 +150,8 @@
     return (NSWindow *)configSheet;
 }
 
-- (IBAction)sheetOkAction:(id)sender {
+- (IBAction)sheetOkAction:(id)sender
+{
     shouldColour = [shouldColourCheckbox state];
     shouldDisplayParams = [shouldDisplayParamsCheckbox state];
     
@@ -164,20 +165,23 @@
     [[NSApplication sharedApplication] endSheet:configSheet];
 }
 
-- (IBAction)sheetCancelAction:(id)sender {
+- (IBAction)sheetCancelAction:(id)sender
+{
     [[NSApplication sharedApplication] endSheet:configSheet];
 }
 
 #pragma mark Helper Functions
 
-- (NSPoint)convertToScreenSpace:(NSPoint)lorenzSpace {
+- (NSPoint)convertToScreenSpace:(NSPoint)lorenzSpace
+{
     float screenX = ((lorenzSpace.x - lorenzMinX) / (lorenzMaxX - lorenzMinX)) * screenMaxX;
     float screenY = ((lorenzSpace.y - lorenzMinZ) / (lorenzMaxZ - lorenzMinZ)) * screenMaxY;
     
     return NSMakePoint(screenX, screenY);
 }
 
-- (void)setupColours {
+- (void)setupColours
+{
     if (shouldColour) {
         // Line segments are drawn using colours from this array, in order
         int nColours = 1000; // Larger number means smoother gradient

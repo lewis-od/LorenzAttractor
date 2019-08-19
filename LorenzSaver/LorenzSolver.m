@@ -9,21 +9,25 @@
 #import "LorenzSolver.h"
 
 // Lorenz equations: dx_i/dt = f_i(x, y, z, t)
-float fx(float xn, float yn, float zn, LorenzSolver *ctx) {
+float fx(float xn, float yn, float zn, LorenzSolver *ctx)
+{
     return ctx.sigma * (yn - xn);
 }
 
-float fy(float xn, float yn, float zn, LorenzSolver *ctx) {
+float fy(float xn, float yn, float zn, LorenzSolver *ctx)
+{
     return xn * (ctx.rho - zn) - yn;
 }
 
-float fz(float xn, float yn, float zn, LorenzSolver *ctx) {
+float fz(float xn, float yn, float zn, LorenzSolver *ctx)
+{
     return xn * yn - ctx.beta * zn;
 }
 
 @implementation LorenzSolver
 
-- (instancetype)initWithTMin:(float)tMin tMax:(float)tMax dt:(float)dt {
+- (instancetype)initWithTMin:(float)tMin tMax:(float)tMax dt:(float)dt
+{
     self = [self init];
     
     self.beta = 8.0 / 3.0;
@@ -38,7 +42,8 @@ float fz(float xn, float yn, float zn, LorenzSolver *ctx) {
     return self;
 }
 
-- (void)solve {
+- (void)solve
+{
     NSMutableArray *xs = [NSMutableArray arrayWithCapacity:N];
     NSMutableArray *ys = [NSMutableArray arrayWithCapacity:N];
     NSMutableArray *zs = [NSMutableArray arrayWithCapacity:N];
