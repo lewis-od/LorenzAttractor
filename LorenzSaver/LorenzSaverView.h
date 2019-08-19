@@ -25,13 +25,15 @@
     float lorenzMinZ;
     float lorenzMaxZ;
     
-    // Whether or not to draw colours
-    bool shouldColour;
+    // Screensaver settings
+    bool shouldColour; // Whether or not to draw colours
+    bool shouldDisplayParams; // Whether or not to display parameter values
     
     int n; // Number of points drawn so far
     
     IBOutlet NSPanel *configSheet;
     IBOutlet NSButton *shouldColourCheckbox;
+    IBOutlet NSButton *shouldDisplayParamsCheckbox;
 }
 
 - (IBAction)sheetCancelAction:(id)sender;

@@ -49,8 +49,12 @@
         }
         
         ScreenSaverDefaults *settings = [ScreenSaverDefaults defaultsForModuleWithName:@"LorenzSaver"];
-        [settings registerDefaults:@{ @"shouldColour": @YES }];
+        [settings registerDefaults:@{
+                                     @"shouldColour": @YES,
+                                     @"shouldDisplayParams": @NO
+                                     }];
         shouldColour = [settings boolForKey:@"shouldColour"];
+        shouldDisplayParams = [settings boolForKey:@"shouldDisplayParams"];
         
         [self setupColours];
     }
@@ -114,14 +118,18 @@
     
     ScreenSaverDefaults *settings = [ScreenSaverDefaults defaultsForModuleWithName:@"LorenzSaver"];
     [shouldColourCheckbox setState:[settings boolForKey:@"shouldColour"]];
+    [shouldDisplayParamsCheckbox setState:[settings boolForKey:@"shouldDisplayParams"]];
     
     return (NSWindow *)configSheet;
 }
 
 - (IBAction)sheetOkAction:(id)sender {
     shouldColour = [shouldColourCheckbox state];
+    shouldDisplayParams = [shouldDisplayParamsCheckbox state];
+    
     ScreenSaverDefaults *settings = [ScreenSaverDefaults defaultsForModuleWithName:@"LorenzSaver"];
     [settings setBool:shouldColour forKey:@"shouldColour"];
+    [settings setBool:shouldDisplayParams forKey:@"shouldDisplayParams"];
     [settings synchronize];
     
     [self setupColours];
