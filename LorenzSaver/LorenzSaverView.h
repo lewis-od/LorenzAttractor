@@ -19,11 +19,16 @@
     // Screen bounds
     float screenMaxX;
     float screenMaxY;
+    
     // Lorenz coord system max/min values
     float lorenzMinX;
     float lorenzMaxX;
     float lorenzMinZ;
     float lorenzMaxZ;
+    
+    // Lorenz Attractor parameters
+    float sigma;
+    float rho;
     
     // Screensaver settings
     bool shouldColour; // Whether or not to draw colours

@@ -28,6 +28,10 @@
         // TODO: Perform on different thread?
         [solver solve];
         
+        // Get parameter values
+        sigma = solver.sigma;
+        rho = solver.rho;
+        
         // Plot x-z plane
         NSArray *xVals = solver.x;
         NSArray *zVals = solver.z;
@@ -60,6 +64,8 @@
     }
     return self;
 }
+
+#pragma mark Animation
 
 - (void)startAnimation
 {
@@ -94,6 +100,24 @@
         
         [path stroke];
     }
+    
+    if (shouldDisplayParams) {
+        // Display Lorenz Attractor params in bottom left
+        NSString *paramString = [NSString stringWithFormat:
+                                 @"ρ = %.2f\nσ = %.2f",
+                                 rho, sigma];
+        
+        NSDictionary *attributes = [NSDictionary dictionaryWithObjectsAndKeys:
+                                    [NSFont fontWithName:@"Helvetica" size:20],
+                                    NSFontAttributeName, [NSColor whiteColor],
+                                    NSForegroundColorAttributeName, nil];
+        
+        NSAttributedString *label = [[NSAttributedString alloc]
+                                     initWithString:paramString
+                                     attributes:attributes];
+        
+        [label drawAtPoint:NSMakePoint(0, 0)];
+    }
 }
 
 - (void)animateOneFrame
@@ -101,6 +125,8 @@
     n = (n + 1) % [points count];
     [self setNeedsDisplay:YES];
 }
+
+#pragma mark Configure Sheet
 
 - (BOOL)hasConfigureSheet
 {
@@ -110,6 +136,7 @@
 - (NSWindow *)configureSheet
 {
     if (configSheet == nil) {
+        // TODO: +loadNibNamed:owner: is deprecated - what to use instead?
         if ([NSBundle loadNibNamed:@"LorenzSaverSheet" owner:self] == NO) {
             NSLog(@"Error loading config sheet");
             NSBeep();
@@ -140,6 +167,8 @@
 - (IBAction)sheetCancelAction:(id)sender {
     [[NSApplication sharedApplication] endSheet:configSheet];
 }
+
+#pragma mark Helper Functions
 
 - (NSPoint)convertToScreenSpace:(NSPoint)lorenzSpace {
     float screenX = ((lorenzSpace.x - lorenzMinX) / (lorenzMaxX - lorenzMinX)) * screenMaxX;
